@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-blue-whale
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: spring-petclinic-app
+      version: blue
+  template:
+    metadata:
+      name: spring-petclinic-pod
+      labels:
+        app: spring-petclinic-app
+        version: blue
+    spec:
+      containers:
+      - name: spring-petclinic-container
+        image: mehdidokker99/spring-petclinic:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+----
+apiVersion: v1
+kind: Service 
+metadata:
+  name: spring-petclinic-svc
+  labels:
+    app: spring-petclinic-app
+spec:
+  selector:
+    app: spring-petclinic-app
+    version: blue
+  type: NodePort
+  ports:
+  - nodePort: 31113
+    port: 80
+    targetPort: 80
+Footer
