@@ -16,8 +16,15 @@ sh 'mvn -e clean install -Dcheckstyle.skip'
 stage('Docker Build') {
 agent any
 steps {
-sh 'docker build -t mehdidokker/spring-petclinic:latest .'
+sh 'docker build -t mehdidokker99/spring-petclinic:latest .'
 }
 }
+   stage('Deploy App') {
+      steps {
+        script {
+         kubernetesDeploy(configs: "spring-petclinic.yml", kubeconfigId: "KubeConfig")
+        }
+      }
+    }
 }
 }
