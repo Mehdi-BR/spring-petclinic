@@ -20,6 +20,7 @@ sh 'docker build -t mehdidokker99/spring-petclinic:latest .'
 }
 }
    stage('Deploy App') {
+      agent any
       steps {
         script {
          kubernetesDeploy(configs: "spring-petclinic.yml", kubeconfigId: "KubeConfig")
