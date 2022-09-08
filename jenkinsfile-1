@@ -19,6 +19,13 @@ steps {
 sh 'docker build -t mehdidokker99/spring-petclinic:latest .'
 }
 }
+   stage('Docker Push') {
+
+			steps {
+				sh 'docker push mehdidokker99/spring-petclinic:latest'
+			}
+		}
+
    stage('Deploy App') {
       agent any
       steps {
