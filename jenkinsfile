@@ -1,36 +1,36 @@
+
 pipeline {
-
-  agent any
-
-  stages {
-
-    stage('Checkout Source') {
+	agent none  stages {
+  	stage('Maven Install') {
+    	agent {
+      	docker {
+        	image 'maven:3.5.0'
+        }
+      }
       steps {
-        git url:'https://github.com/mehdi-br/spring-petclinic.git', branch:'master'
+      	sh 'mvn clean install'
       }
     }
-    
-      stage("Build image") {
-            steps {
-                script {
-                    myapp = docker.build("mehdidokker99/spring-petclinic:${env.BUILD_ID}")
-                }
-            }
+    stage('Docker Build') {
+    	agent any
+      steps {
+      	sh 'docker build -t mehdidokker99/spring-petclinic:latest .'
+      }
+    }
+    stage('Docker Push') {
+    	agent any
+      steps {
+      	withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+        	sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+          sh 'docker push shanem/spring-petclinic:latest'
         }
-    
-      stage("Push image") {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                            myapp.push("latest")
-                            myapp.push("${env.BUILD_ID}")
-                    }
-                }
-            }
-        }
+      }
+    }
+  }
 
     
     stage('Deploy App') {
+    agent any
       steps {
         script {
          kubernetesDeploy(configs: "spring-petclinic.yml", kubeconfigId: "KubeConfig")
